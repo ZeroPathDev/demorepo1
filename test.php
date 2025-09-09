@@ -28,7 +28,7 @@ function login($username, $password) {
     if ($result->num_rows > 0) {
         echo "Welcome, $username!";
     } else {
-        echo "$query Invalid username or password.";
+        echo "Invalid username or password.";
     }
 
     // Close connection
