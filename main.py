@@ -3,6 +3,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import subprocess
 
+# Server-side invalidated sessions store
+invalid_sessions = set()
+
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
@@ -33,6 +36,10 @@ notes = {
 
 def validate_user():
     if 'user_id' not in session:
+        return None
+    # Check if session cookie has been invalidated server-side
+    cookie = request.cookies.get(app.session_cookie_name)
+    if cookie in invalid_sessions:
         return None
     return session['user_id']
 
@@ -86,7 +93,8 @@ def get_user():
 
 @app.route('/note/<int:note_id>', methods=['GET'])
 def get_note(note_id):
-    if 'user_id' not in session:
+    user_id = validate_user()
+    if user_id is None:
         return jsonify({"error": "Please log in"}), 401
 
     for user_notes in notes.values():
@@ -116,8 +124,14 @@ def login():
 
 @app.route('/logout', methods=['POST'])
 def logout():
-    session.pop('user_id', None)
-    return jsonify({"message": "Logout successful"}), 200
+    # Invalidate this session cookie server-side
+    cookie = request.cookies.get(app.session_cookie_name)
+    if cookie:
+        invalid_sessions.add(cookie)
+    session.clear()
+    resp = jsonify({"message": "Logout successful"})
+    resp.set_cookie(app.session_cookie_name, '', expires=0)
+    return resp, 200
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
