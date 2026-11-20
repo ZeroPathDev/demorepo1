@@ -47,7 +47,14 @@ app.get('/fetch', async (req, res) => {
   }
 
     const resp = await axios.get(url);
-    res.send(resp.data);
+    res.set('X-Content-Type-Options', 'nosniff');
+    res.type('text/plain').send(
+      Buffer.isBuffer(resp.data)
+        ? resp.data
+        : typeof resp.data === 'string'
+          ? resp.data
+          : JSON.stringify(resp.data)
+    );
   } catch (e) {
     res.status(500).send(e.message);
   }
