@@ -86,13 +86,13 @@ def get_user():
 
 @app.route('/note/<int:note_id>', methods=['GET'])
 def get_note(note_id):
-    if 'user_id' not in session:
+    user_id = validate_user()
+    if user_id is None:
         return jsonify({"error": "Please log in"}), 401
 
-    for user_notes in notes.values():
-        for note in user_notes:
-            if note['id'] == note_id:
-                return jsonify(note), 200
+    for note in notes.get(user_id, []):
+        if note['id'] == note_id:
+            return jsonify(note), 200
 
     return jsonify({"error": "Note not found"}), 404
 
