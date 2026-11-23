@@ -3,8 +3,8 @@
 function login($username, $password) {
     // Configuration
     $db_host = 'localhost';
-    $db_username = 'root';
-    $db_password = 'root@1234';
+    $db_username = getenv('DB_USERNAME');
+    $db_password = getenv('DB_PASSWORD');
     $db_name = 'arnicaTest';
 
 
